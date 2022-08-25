@@ -3,20 +3,34 @@ import { View, Text, PanResponder, Animated, Dimensions } from 'react-native';
 import { Card, Button } from 'react-native-elements';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
+const SWIPE_THRESHOLD = 0.25 * SCREEN_WIDTH;
 
 const Deck = ({ data }) => {
 
   const position = new Animated.ValueXY();
 
+  function resetPosition() {
+    Animated.spring(position, {
+      toValue: { x: 0, y: 0 },
+      useNativeDriver: false
+    }).start()
+  }
+
   const panResponder = useRef(
     PanResponder.create({
-      onStartShouldSetPanResponder: () => {},
-      onMoveShouldSetPanResponder: () => true,
+      onStartShouldSetPanResponder: () => true,
       onPanResponderMove: (event, gesture) => {
         position.setValue({ x: gesture.dx, y: gesture.dy });
       },
-      onPanResponderRelease: () => {
+      onPanResponderRelease: (event, gesture) => {
         //when the finger is leave
+        if (gesture.dx > SWIPE_THRESHOLD) {
+          console.log('liked')
+        } else if (gesture.dx < -SWIPE_THRESHOLD) {
+          console.log('dont liked');
+        } 
+          resetPosition();
+        
       },
     })
   ).current;
