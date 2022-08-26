@@ -16,6 +16,15 @@ const Deck = ({ data }) => {
     }).start()
   }
 
+  // do the card swipe animation when is 45°
+  function forceSwipe(direction) {
+    const x = direction === 'right' ? SCREEN_WIDTH : -SCREEN_WIDTH;
+    Animated.timing(position, {
+      toValue: { x: x, y: 0 },
+      duration: 250
+    }).start()
+  }
+
   const panResponder = useRef(
     PanResponder.create({
       onStartShouldSetPanResponder: () => true,
@@ -25,10 +34,10 @@ const Deck = ({ data }) => {
       onPanResponderRelease: (event, gesture) => {
         //when the finger is leave
         if (gesture.dx > SWIPE_THRESHOLD) {
-          console.log('liked')
+          forceSwipe('right');
         } else if (gesture.dx < -SWIPE_THRESHOLD) {
-          console.log('dont liked');
-        } 
+          forceSwipe('left: ');
+        } else
           resetPosition();
         
       },
