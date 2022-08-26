@@ -1,16 +1,23 @@
-import { useRef, useEffect, useState } from 'react';
-import { View, Text, PanResponder, Animated, Dimensions } from 'react-native';
+import { useRef, useState } from 'react';
+import { View, Text, PanResponder, Animated, Dimensions,StyleSheet } from 'react-native';
 import { Card, Button } from 'react-native-elements';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 const SWIPE_THRESHOLD = 0.25 * SCREEN_WIDTH;
 
-const initial = () => {}
+const initial = () => { }
+
+const theme = StyleSheet.create( {
+  cardStyle: {
+    position: 'absolute',
+    width: SCREEN_WIDTH,
+  },
+});
 
 const Deck = ({ data, onSwipeRight = initial, onSwipeLeft = initial }) => {
   const [itemIndex, setItemIndex] = useState(0);
 
-  const position = new Animated.ValueXY();
+  const position = useRef(new Animated.ValueXY()).current;;
 
   function resetPosition() {
     Animated.spring(position, {
@@ -56,11 +63,6 @@ const Deck = ({ data, onSwipeRight = initial, onSwipeLeft = initial }) => {
     })
   ).current;
 
-  
-  console.log('itemIndex', itemIndex);
-
-    console.log('panResponder', panResponder);
-
   function getLayout() {
     const rotate = position.x.interpolate({
       inputRange: [-SCREEN_WIDTH * 1.5, 0, SCREEN_WIDTH * 1.5],
@@ -84,13 +86,14 @@ const Deck = ({ data, onSwipeRight = initial, onSwipeLeft = initial }) => {
         if (index < itemIndex) return null;
 
         if (index === itemIndex) {
+          console.log(item.text);
           return (
             <Animated.View
               key={item.id}
-              style={getLayout()}
+              style={[theme.cardStyle, getLayout(), { zIndex: 99 }]}
               {...panResponder.panHandlers}
             >
-              <Card key={item.id}>
+              <Card>
                 <Card.Title>{item.text}</Card.Title>
                 <Card.Image source={{ uri: item.uri }} />
                 <Text style={{ marginBottom: 10 }}>
@@ -107,21 +110,27 @@ const Deck = ({ data, onSwipeRight = initial, onSwipeLeft = initial }) => {
         }
 
         return (
-          <Card key={item.id}>
-            <Card.Title>{item.text}</Card.Title>
-            <Card.Image source={{ uri: item.uri }} />
-            <Text style={{ marginBottom: 10 }}>
-              I can customize the Card further.
-            </Text>
-            <Button
-              icon={{ name: 'code' }}
-              backgroundColor='#03a9f3'
-              title={' View Now!'}
-            />
-          </Card>
+          <Animated.View
+            key={item.id}
+            style={[theme.cardStyle, { zIndex: 5 }]}
+          >
+            <Card>
+              <Card.Title>{item.text}</Card.Title>
+              <Card.Image source={{ uri: item.uri }} />
+              <Text style={{ marginBottom: 10 }}>
+                I can customize the Card further.
+              </Text>
+              <Button
+                icon={{ name: 'code' }}
+                backgroundColor='#03a9f3'
+                title={' View Now!'}
+              />
+            </Card>
+          </Animated.View>
         );
 
-      })}
+      }).reverse()
+      }
     </View>
   );
 };
@@ -135,7 +144,7 @@ function NoMoreCards() {
   return (
     <Card title="All Done!">
       <Text style={{marginBottom: 10}}>there are no more cards</Text>
-      <Button title= "Get More!" backgroundColor="#03a9f4"/>
+      <Button title="Get More!" backgroundColor="#03a9f4"/>
     </Card>
   )
 }
